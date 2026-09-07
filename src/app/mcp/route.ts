@@ -62,6 +62,57 @@ const handler = createMcpHandler((server) => {
       return runTool(async () => result(await createTodo(input)));
     },
   );
+  server.registerTool(
+    "get_todo",
+    {
+      title: "Pobierz todo",
+      description: "Zwraca pojedyncze todo na podstawie identyfikatora",
+      inputSchema: z.object({ id: todoIdSchema }),
+    },
+    async ({ id }) => {
+      return runTool(async () => {
+        const todo = await getTodo(id);
+        if (!todo) {
+          return failure(`Nie znaleziono todo o id ${id}.`);
+        }
+        return result(todo);
+      });
+    },
+  );
+  server.registerTool(
+    "update_todo",
+    {
+      title: "Zaktualizuj todo",
+      description: "Aktualizuje tytuł i/lub status ukończenia todo",
+      inputSchema: z.object({ id: todoIdSchema }).and(updateTodoSchema),
+    },
+    async ({ id, ...changes }) => {
+      return runTool(async () => {
+        const todo = await updateTodo(id, changes);
+        if (!todo) {
+          return failure(`Nie znaleziono todo o id ${id}.`);
+        }
+        return result(todo);
+      });
+    },
+  );
+  server.registerTool(
+    "delete_todo",
+    {
+      title: "Usuń todo",
+      description: "Usuwa todo na podstawie identyfikatora",
+      inputSchema: z.object({ id: todoIdSchema }),
+    },
+    async ({ id }) => {
+      return runTool(async () => {
+        const deleted = await deleteTodo(id);
+        if (!deleted) {
+          return failure(`Nie znaleziono todo o id ${id}.`);
+        }
+        return result({ id, deleted: true });
+      });
+    },
+  );
 });
 
 export { handler as GET, handler as POST };
