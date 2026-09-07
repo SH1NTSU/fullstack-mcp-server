@@ -51,6 +51,17 @@ const handler = createMcpHandler((server) => {
       return runTool(async () => result(await listTodos()));
     },
   );
+  server.registerTool(
+    "create_todo",
+    {
+      title: "Utwórz todo",
+      description: "Utwórz nowe todo",
+      inputSchema: createTodoSchema,
+    },
+    async (input) => {
+      return runTool(async () => result(await createTodo(input)));
+    },
+  );
 });
 
 export { handler as GET, handler as POST };
